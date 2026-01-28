@@ -3,32 +3,35 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>EMI Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMI Calculator - Indian Format</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
             background-color: #f4f7f9;
-            padding: 20px;
+            padding: 10px;
             color: #333;
+            margin: 0;
         }
 
         .container {
             max-width: 1100px;
-            margin: auto;
+            margin: 10px auto;
             background: white;
-            padding: 25px;
+            padding: 20px;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
         .section-title {
             border-bottom: 2px solid #3498db;
-            margin-bottom: 20px;
+            margin: 20px 0;
             padding-bottom: 10px;
             color: #2c3e50;
         }
 
+        /* Responsive Main Inputs */
         .input-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -54,62 +57,25 @@
             border: 1px solid #dcdde1;
             border-radius: 6px;
             font-size: 15px;
+            box-sizing: border-box;
         }
 
-        /* Dashboard Cards */
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .card {
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            border-left: 5px solid #27ae60;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            text-align: center;
-        }
-
-        .card.blue {
-            border-left-color: #3498db;
-        }
-
-        .card.orange {
-            border-left-color: #e67e22;
-        }
-
-        .card h5 {
-            margin: 0;
-            text-transform: uppercase;
-            font-size: 12px;
-            color: #7f8c8d;
-        }
-
-        .card p {
-            margin: 10px 0 0;
-            font-size: 18px;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-
-        .card .highlight {
-            color: #27ae60;
-            display: block;
-            font-size: 13px;
-            margin-top: 5px;
-        }
-
+        /* Responsive Prepayment Grid */
         .prepay-container {
             display: grid;
-            /* 1fr + 1fr + 1fr + 1.5fr = 4.5 total units */
             grid-template-columns: 1fr 1fr 1fr 1.5fr;
-            gap: 0;
-            border: 1px solid #ddd;
+            /* 1.5fr makes the last box bigger */
+            gap: 10px;
             background: #eee;
+            border: 1px solid #ddd;
             margin-bottom: 30px;
+        }
+
+        @media (max-width: 850px) {
+            .prepay-container {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
         }
 
         .prepay-box {
@@ -158,10 +124,6 @@
             margin-bottom: 5px;
         }
 
-        .otp-row input {
-            width: 75% !important;
-        }
-
         .btn-add-otp {
             background: #3498db;
             color: white;
@@ -171,13 +133,66 @@
             height: 25px;
             cursor: pointer;
             font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        /* Dashboard Cards */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #27ae60;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .card.blue {
+            border-left-color: #3498db;
+        }
+
+        .card.orange {
+            border-left-color: #e67e22;
+        }
+
+        .card h5 {
+            margin: 0;
+            text-transform: uppercase;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        .card p {
+            margin: 10px 0 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .highlight {
+            color: #27ae60;
+            display: block;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        /* Table & Accordion */
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 20px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
             font-size: 13px;
+            min-width: 700px;
         }
 
         th {
@@ -230,12 +245,11 @@
 </head>
 
 <body>
-
     <div class="container">
         <h2 class="section-title">Loan Amortization Tracker</h2>
         <div class="input-grid">
-            <div class="input-group"><label>Sanctioned Amount</label><input type="number" id="balance" value="3000000">
-            </div>
+            <div class="input-group"><label>Sanctioned Amount</label><input type="text" id="balance" class="inr-input"
+                    value="30,00,000"></div>
             <div class="input-group"><label>Rate (% P.A.)</label><input type="number" step="0.01" id="rate"
                     value="8.65"></div>
             <div class="input-group"><label>Tenure (Months)</label><input type="number" id="tenure" value="120"></div>
@@ -247,56 +261,56 @@
         <div class="prepay-container">
             <div class="prepay-box">
                 <h4>Monthly Extra</h4>
-                <div class="inner-input"><input type="number" id="mExtra" value="0"><span>₹</span></div>
-                <label>from</label><input type="month" id="mStart" value="2026-02">
+                <div class="inner-input"><input type="text" id="mExtra" class="inr-input" value="0"><span>₹</span></div>
+                <label>from</label><input type="month" id="mStart" value="2026-02" style="width:100%">
             </div>
             <div class="prepay-box">
                 <h4>Yearly Extra</h4>
-                <div class="inner-input"><input type="number" id="yExtra" value="0"><span>₹</span></div>
-                <label>from</label><input type="month" id="yStart" value="2026-02">
+                <div class="inner-input"><input type="text" id="yExtra" class="inr-input" value="0"><span>₹</span></div>
+                <label>from</label><input type="month" id="yStart" value="2026-02" style="width:100%">
             </div>
             <div class="prepay-box">
                 <h4>Quarterly Extra</h4>
-                <div class="inner-input"><input type="number" id="qExtra" value="0"><span>₹</span></div>
-                <label>from</label><input type="month" id="qStart" value="2026-04">
+                <div class="inner-input"><input type="text" id="qExtra" class="inr-input" value="0"><span>₹</span></div>
+                <label>from</label><input type="month" id="qStart" value="2026-04" style="width:100%">
             </div>
             <div class="prepay-box">
                 <h4>One-time Prepayment</h4>
                 <div id="otpContainer">
                     <div class="otp-row">
-                        <div>
-                            <label style="display:block; margin: 10px 0 5px 0;">Extra</label>
-                            <div class="inner-input" style="margin-bottom:0;"><input type="number" class="otp-amt"
-                                    value="60000"><span>₹</span></div>
+                        <div style="flex:1">
+                            <label style="display:block; margin-bottom:5px;">Extra</label>
+                            <div class="inner-input" style="margin-bottom:0;"><input type="text"
+                                    class="otp-amt inr-input" value="0"><span>₹</span></div>
                         </div>
-                        <div>
-                            <label style="display:block; margin: 10px 0 5px 0;">on date</label>
-                            <div class="otp-row"><input type="date" class="otp-date" value="2025-11-09"><button
-                                    class="btn-add-otp" onclick="addOtpRow()">+</button></div>
+                        <div style="flex:1">
+                            <label style="display:block; margin-bottom:5px;">On Date</label>
+                            <div class="otp-row" style="margin-bottom:0"><input type="date" class="otp-date"
+                                    style="width:100%"><button class="btn-add-otp" onclick="addOtpRow()">+</button>
+                            </div>
                         </div>
                     </div>
-                    <!-- <label style="display:block; margin: 10px 0 5px 0;">on date</label>
-                    <div class="otp-row"><input type="date" class="otp-date" value="2025-11-09"><button
-                            class="btn-add-otp" onclick="addOtpRow()">+</button></div> -->
                 </div>
             </div>
         </div>
 
         <button class="btn-calc" onclick="calculate()">Generate Schedule</button>
 
-        <table id="scheduleTable">
-            <thead>
-                <tr>
-                    <th style="text-align:left; width: 100px;">Month #</th>
-                    <th style="text-align:left;">Year / Month</th>
-                    <th>Principal Paid</th>
-                    <th>Interest Paid</th>
-                    <th>Total Paid</th>
-                    <th>Remaining Balance</th>
-                </tr>
-            </thead>
-            <tbody id="scheduleBody"></tbody>
-        </table>
+        <div class="table-wrapper">
+            <table id="scheduleTable">
+                <thead>
+                    <tr>
+                        <th style="text-align:left; width: 100px;">Month #</th>
+                        <th style="text-align:left;">Year / Month</th>
+                        <th>Principal Paid</th>
+                        <th>Interest Paid</th>
+                        <th>Total Paid</th>
+                        <th>Remaining Balance</th>
+                    </tr>
+                </thead>
+                <tbody id="scheduleBody"></tbody>
+            </table>
+        </div>
 
         <div class="dashboard">
             <div class="card blue">
@@ -324,19 +338,23 @@
 
     <script>
         function formatINR(n) { return new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(Math.round(n)); }
-        function addOtpRow() { $('#otpContainer').append(`<div class="otp-row" style="margin-top:10px;"><input type="number" class="otp-amt" value="0" style="width:80px;"><input type="date" class="otp-date"><button onclick="$(this).parent().remove()">-</button></div>`); }
+        function parseINR(val) { return parseFloat(val.toString().replace(/,/g, '')) || 0; }
+
+        $(document).on('input', '.inr-input', function () {
+            let val = $(this).val().replace(/[^0-9]/g, '');
+            if (val) $(this).val(formatINR(val));
+        });
+
+        function addOtpRow() { $('#otpContainer').append(`<div class="otp-row" style="margin-top:10px;"><div style="flex:1"><div class="inner-input" style="margin-bottom:0;"><input type="text" class="otp-amt inr-input" value="0"><span>₹</span></div></div><div style="flex:1" class="otp-row"><input type="date" class="otp-date" style="width:100%"><button onclick="$(this).parent().parent().remove()" style="background:#e74c3c" class="btn-add-otp">-</button></div></div>`); }
 
         function calculate() {
-            let origBal = parseFloat($('#balance').val());
+            let origBal = parseINR($('#balance').val());
             let balance = origBal;
             let annualRate = parseFloat($('#rate').val()) / 100;
             let monthlyRate = annualRate / 12;
             let tenureMonths = parseInt($('#tenure').val());
 
-            // Standard EMI
             let emi = origBal * monthlyRate * Math.pow(1 + monthlyRate, tenureMonths) / (Math.pow(1 + monthlyRate, tenureMonths) - 1);
-
-            // Baseline calculation (No prepayments)
             let baseTotalInterest = (emi * tenureMonths) - origBal;
             let baseTotalPaid = emi * tenureMonths;
             let baseEndDate = new Date($('#startDate').val());
@@ -346,10 +364,10 @@
             let cycleStart = new Date(currDate);
             cycleStart.setDate(cycleStart.getDate() - 30);
 
-            let mAmt = parseFloat($('#mExtra').val()) || 0, mS = new Date($('#mStart').val() + "-01");
-            let qAmt = parseFloat($('#qExtra').val()) || 0, qS = new Date($('#qStart').val() + "-01");
-            let yAmt = parseFloat($('#yExtra').val()) || 0, yS = new Date($('#yStart').val() + "-01");
-            let otpList = []; $('.otp-amt').each(function (i) { let a = parseFloat($(this).val()); let d = $('.otp-date').eq(i).val(); if (a > 0 && d) otpList.push({ a, d: new Date(d) }); });
+            let mAmt = parseINR($('#mExtra').val()), mS = new Date($('#mStart').val() + "-01");
+            let qAmt = parseINR($('#qExtra').val()), qS = new Date($('#qStart').val() + "-01");
+            let yAmt = parseINR($('#yExtra').val()), yS = new Date($('#yStart').val() + "-01");
+            let otpList = []; $('.otp-amt').each(function (i) { let a = parseINR($(this).val()); let d = $('.otp-date').eq(i).val(); if (a > 0 && d) otpList.push({ a, d: new Date(d) }); });
 
             let yearlyData = {};
             let globalMonthCount = 0;
@@ -412,7 +430,6 @@
 
             render(yearlyData);
 
-            // Update Dashboard
             let totalPaidWithPrepay = origBal + totalInterestPaid;
             $('#dashInterest').text('₹ ' + formatINR(totalInterestPaid));
             $('#dashInterestSaved').text('Saved: ₹ ' + formatINR(baseTotalInterest - totalInterestPaid));
