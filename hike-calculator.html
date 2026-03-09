@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salary Hike & Take-Home Calculator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .result-card { background-color: #e9ecef; border-left: 5px solid #0d6efd; }
+        .hike-text { color: #198754; font-weight: bold; }
+        .label-custom { font-weight: 600; color: #495057; }
+    </style>
+</head>
+<body>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <h2 class="text-center mb-4">Salary Increment Predictor</h2>
+            
+            <div class="row g-4">
+                <div class="col-md-5">
+                    <div class="card p-4 h-100">
+                        <h4 class="mb-3">Current Configuration</h4>
+                        <div class="mb-3">
+                            <label class="label-custom">Current Basic Salary (Monthly)</label>
+                            <input type="number" id="baseSalary" class="form-control form-control-lg" value="72991" oninput="calculate()">
+                        </div>
+                        <div class="mb-3">
+                            <label class="label-custom">Medical Topup (Fixed Deduction)</label>
+                            <input type="number" id="medical" class="form-control" value="5420" oninput="calculate()">
+                        </div>
+                        <div class="mb-4">
+                            <label class="label-custom">Proposed Hike (%)</label>
+                            <input type="range" id="hikeRange" class="form-range" min="0" max="20" step="0.5" value="6" oninput="updateHikeLabel()">
+                            <div class="text-center"><span id="hikeLabel" class="badge bg-primary fs-6">6%</span></div>
+                        </div>
+                        <hr>
+                        <p class="text-muted small">* Calculations assume New Tax Regime FY 2025-26 rules.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-7">
+                    <div class="card p-4 result-card">
+                        <div class="row">
+                            <div class="col-6">
+                                <h5 class="text-secondary">Current Net Take-Home</h5>
+                                <h3 id="currNet">₹ 0</h3>
+                            </div>
+                            <div class="col-6 text-end">
+                                <h5 class="text-primary">New Net Take-Home</h5>
+                                <h3 class="text-primary" id="newNet">₹ 0</h3>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <span class="hike-text">Monthly Increase: <span id="monthlyGain">₹ 0</span></span>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive mt-4">
+                        <table class="table table-hover bg-white rounded shadow-sm">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Component</th>
+                                    <th>Current (₹)</th>
+                                    <th>New (After Hike)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="salaryTableBody">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateHikeLabel() {
+        document.getElementById('hikeLabel').innerText = document.getElementById('hikeRange').value + '%';
+        calculate();
+    }
+
+    function calculateTax(annualTaxable) {
+        let tax = 0;
+        if (annualTaxable <= 400000) tax = 0;
+        else if (annualTaxable <= 800000) tax = (annualTaxable - 400000) * 0.05;
+        else if (annualTaxable <= 1200000) tax = 20000 + (annualTaxable - 800000) * 0.10;
+        else if (annualTaxable <= 1600000) tax = 60000 + (annualTaxable - 1200000) * 0.15;
+        else if (annualTaxable <= 2000000) tax = 120000 + (annualTaxable - 1600000) * 0.20;
+        else if (annualTaxable <= 2400000) tax = 200000 + (annualTaxable - 2000000) * 0.25;
+        else tax = 300000 + (annualTaxable - 2400000) * 0.30;
+        
+        return tax * 1.04; // Plus 4% Cess
+    }
+
+    function calculate() {
+        const base = parseFloat(document.getElementById('baseSalary').value) || 0;
+        const hike = parseFloat(document.getElementById('hikeRange').value) / 100;
+        const medical = parseFloat(document.getElementById('medical').value) || 0;
+        const stdDed = 75000 / 12; // Monthly Standard Deduction
+
+        // 1. Calculations for Current
+        const currHRA = base * 0.5;
+        const currPP = base; // Personal Pay follows Basic logic
+        const currGross = base + currHRA + currPP;
+        const currPF = base * 0.12;
+        const currTax = calculateTax((currGross * 12) - 75000) / 12;
+        const currNet = currGross - currPF - currTax - medical;
+
+        // 2. Calculations for New
+        const newBase = base * (1 + hike);
+        const newPP = currPP * (1 + hike);
+        const newHRA = newBase * 0.5;
+        const newGross = newBase + newHRA + newPP;
+        const newPF = newBase * 0.12;
+        const newTax = calculateTax((newGross * 12) - 75000) / 12;
+        const newNet = newGross - newPF - newTax - medical;
+
+        // Update UI
+        document.getElementById('currNet').innerText = '₹ ' + Math.round(currNet).toLocaleString('en-IN');
+        document.getElementById('newNet').innerText = '₹ ' + Math.round(newNet).toLocaleString('en-IN');
+        document.getElementById('monthlyGain').innerText = '₹ ' + Math.round(newNet - currNet).toLocaleString('en-IN');
+
+        const rows = [
+            ['Basic Pay', base, newBase],
+            ['Personal Pay', currPP, newPP],
+            ['H.R.A', currHRA, newHRA],
+            ['Gross Earnings', currGross, newGross],
+            ['Provident Fund', currPF, newPF],
+            ['Income Tax (TDS)', currTax, newTax]
+        ];
+
+        let html = '';
+        rows.forEach(row => {
+            html += `<tr>
+                <td class="label-custom">${row[0]}</td>
+                <td>${Math.round(row[1]).toLocaleString('en-IN')}</td>
+                <td class="fw-bold text-primary">${Math.round(row[2]).toLocaleString('en-IN')}</td>
+            </tr>`;
+        });
+        document.getElementById('salaryTableBody').innerHTML = html;
+    }
+
+    // Initialize
+    calculate();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
